@@ -1,0 +1,6 @@
+html,body{
+    margin:0;height:100%;display:grid;place-items:center;
+    font-family:system-ui, sans-serif;
+  }
+  h1{font-size:4rem;}
+  
