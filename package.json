@@ -6,7 +6,7 @@
   "scripts": {
   "start": "concurrently \"npm run tsc:watch\" \"npm run serve\"",
   "tsc:watch": "tsc --watch",
-  "serve": "lite-server --baseDir=public --port=8081"
+  "serve": "lite-server -c bs-config.js"
 },
   "keywords": [],
   "author": "",
