@@ -1,19 +1,28 @@
 {
-  "name": "scenario-site",
+  "name": "scenario-viewer",
   "version": "1.0.0",
-  "description": "",
+  "description": "Interactive tool for visualizing and connecting multiple scenario views",
   "main": "index.js",
   "scripts": {
-  "start": "concurrently \"npm run tsc:watch\" \"npm run serve\"",
-  "tsc:watch": "tsc --watch",
-  "serve": "lite-server -c bs-config.js"
-},
-  "keywords": [],
+    "start": "concurrently \"npm run tsc:watch\" \"npm run serve\"",
+    "tsc:watch": "tsc --watch",
+    "serve": "lite-server -c bs-config.js",
+    "build": "tsc",
+    "clean": "rimraf public/assets/*.js"
+  },
+  "keywords": [
+    "scenario",
+    "viewer",
+    "interactive",
+    "visualization"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
     "concurrently": "^9.1.2",
-    "lite-server": "^2.6.1"
+    "lite-server": "^2.6.1",
+    "rimraf": "^5.0.0",
+    "typescript": "^5.0.4"
   }
 }

@@ -1,151 +1,262 @@
-/* —— General —— */
-*{box-sizing:border-box}
-body{
-  margin:0;font-family:system-ui,sans-serif;
-  background:#fafafa;
-  height:100vh;          /* allow 100% computations */
-  overflow:hidden;       /* no scrollbars */
-  position:relative;
-}
+/**
+ * Scenario Viewer - Main Stylesheet
+ * Organized by component for better maintainability
+ */
 
-/* —— Header —— */
-header{
-  position:relative;          /* so buttons can float right */
-  display:flex;               /* centre text */
-  justify-content:center;
-  align-items:center;
-  gap:.75rem;
-  padding:.5rem 1rem;
-  background:#333;color:#fff;
-}
-header h1{font-size:1rem;margin:0;font-weight:500}
-header button{
-  margin-left:auto;padding:.25rem .75rem;border:0;
-  border-radius:4px;background:#555;color:#eee;
-  cursor:pointer;font-size:.9rem;
-  position:absolute; right:1rem;
-}
-header button+button{right:7.5rem}
-header button:hover{background:#666}
-
-/* host label */
-#host-value{font-weight:600}
-#edit-host{width:18px;height:18px;cursor:pointer}
-
-/* —— Card shell —— */
-.card{
-  position:absolute;
-  width:350px;height:250px;
-  border:1px solid #ccc;border-radius:8px;
-  overflow:hidden;resize:both;
-  background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);
-  /* Added padding around views */
-  padding: 12px;
-}
-.handle{
-  width:18px;height:18px;
-  background:repeating-linear-gradient(45deg,#bbb 0 2px,#fff 2px 4px);
-  cursor:move;position:absolute;top:4px;left:4px;border-radius:3px;z-index:10;
-}
-.card h2{margin:0 0 0 28px;padding:.5rem 0 .25rem;font-size:.9rem}
-.card iframe{
-  border:0;
-  transform-origin:top left;
-  display:block;
-  /* Add margin to iframe to provide inner padding */
-  margin-top: 8px;
-}
-.dot{
-  width:10px; height:10px; border-radius:50%;
-  background:#ffda5f; position:absolute;
-  transform:translate(-50%,-50%);
-  pointer-events:auto; cursor:crosshair;
-  opacity:0;                 /* <- instead of display:none */
-  transition:opacity .12s;
-}
-.card:hover .dot{opacity:1;}       /* only show on hover */
-
-/* Make occupied dots slightly more visible even when not hovering */
-.dot[data-occupied="true"] {
-  opacity: 0.7;
-}
-
-/* line marker arrow head */
-marker#arrow-head{
-  markerWidth:6;markerHeight:6;refX:5;refY:3;orient:auto;fill:#444;
-}
-/* —— Modal Dialog —— */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-
-.modal-content {
-  width: 60%;
-  max-height: 80%;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid #eee;
-  background: #f5f5f5;
-  border-radius: 8px 8px 0 0;
-}
-
-.modal-close {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #ff5f57;
-  color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-right: 8px;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 500;
-  flex: 1;
-}
-
-.modal-remove-btn {
-  background: #e74c3c;
-  color: white;
-  border: 0;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.modal-remove-btn:hover {
-  background: #c0392b;
-}
-
-.modal-body {
-  padding: 16px;
-  overflow: auto;
-}
-
-/* Make SVG lines interactive */
-svg line {
-  cursor: pointer;
-}
+/* ==================== Global Styles ==================== */
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #fafafa;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  /* ==================== Header Component ==================== */
+  header {
+    position: relative;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: #333;
+    color: #fff;
+    z-index: 100;
+  }
+  
+  header h1 {
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 500;
+  }
+  
+  header button {
+    margin-left: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border: 0;
+    border-radius: 4px;
+    background: #555;
+    color: #eee;
+    cursor: pointer;
+    font-size: 0.9rem;
+    position: absolute;
+    right: 1rem;
+  }
+  
+  header button:hover {
+    background: #666;
+  }
+  
+  header button:nth-of-type(2) {
+    right: 7.5rem;
+  }
+  
+  header button:nth-of-type(3) {
+    right: 14rem;
+  }
+  
+  /* Host indicator and edit button */
+  #host-value {
+    font-weight: 600;
+  }
+  
+  #edit-host {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+  
+  /* ==================== Card Component ==================== */
+  .card {
+    position: absolute;
+    width: 350px;
+    height: 250px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    resize: both;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 12px;
+    transition: box-shadow 0.2s ease;
+  }
+  
+  .card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .card h2 {
+    margin: 0 0 0 28px;
+    padding: 0.5rem 0 0.25rem;
+    font-size: 0.9rem;
+    color: #333;
+  }
+  
+  .handle {
+    width: 18px;
+    height: 18px;
+    background: repeating-linear-gradient(45deg, #bbb 0 2px, #fff 2px 4px);
+    cursor: move;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    border-radius: 3px;
+    z-index: 10;
+  }
+  
+  .card iframe {
+    border: 0;
+    transform-origin: top left;
+    display: block;
+    margin-top: 8px;
+  }
+  
+  /* ==================== Connector Component ==================== */
+  /* Connection dots */
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ffda5f;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+    cursor: crosshair;
+    opacity: 0;
+    transition: opacity 0.12s, background-color 0.2s;
+    z-index: 5;
+  }
+  
+  .card:hover .dot {
+    opacity: 1;
+  }
+  
+  /* Occupied dots are always slightly visible */
+  .dot[data-occupied="true"] {
+    opacity: 0.7;
+    background: #ffb347;
+  }
+  
+  /* Hover effect for dots */
+  .dot:hover {
+    background: #ff9f1c;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  
+  /* SVG arrow head marker */
+  marker#arrow-head {
+    markerWidth: 6;
+    markerHeight: 6;
+    refX: 5;
+    refY: 3;
+    orient: auto;
+    fill: #444;
+  }
+  
+  /* ==================== Dialog Component ==================== */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  }
+  
+  .modal-content {
+    width: 500px;
+    max-width: 90%;
+    max-height: 80vh;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modal-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    background: #f5f5f5;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .modal-close {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ff5f57;
+    color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 8px;
+  }
+  
+  .modal-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    flex: 1;
+  }
+  
+  .modal-remove-btn {
+    background: #e74c3c;
+    color: white;
+    border: 0;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .modal-remove-btn:hover {
+    background: #c0392b;
+  }
+  
+  .modal-body {
+    padding: 16px;
+    overflow: auto;
+    line-height: 1.5;
+  }
+  
+  /* ==================== SVG Connector Lines ==================== */
+  svg line {
+    cursor: pointer;
+    transition: stroke 0.2s, stroke-width 0.2s;
+  }
+  
+  svg line:hover {
+    stroke: #666 !important;
+    stroke-width: 3 !important;
+  }
+  
+  /* ==================== Responsive Adjustments ==================== */
+  @media (max-width: 768px) {
+    header button {
+      font-size: 0.8rem;
+      padding: 0.2rem 0.5rem;
+    }
+    
+    .modal-content {
+      width: 95%;
+    }
+  }

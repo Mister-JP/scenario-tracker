@@ -1,9 +1,22 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "module": "es2020",
+    "target": "ES2020",
+    "module": "ES2020",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
     "outDir": "public/assets",
     "strict": true,
-    "rootDir": "src"
-  }
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "sourceMap": true,
+    "declaration": false,
+    "removeComments": false,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }
