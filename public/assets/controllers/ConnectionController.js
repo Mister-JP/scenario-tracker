@@ -189,8 +189,8 @@ export default class ConnectionController {
       const cardId = parseInt(card.dataset.scenario, 10);
       if (cardId === sourceCardId) return;
       
-      // Check each dot on this card
-      const dots = card.querySelectorAll('.dot');
+      // Check each dot on this card that is not occupied
+      const dots = card.querySelectorAll('.dot[data-occupied="false"]');
       dots.forEach(dot => {
         const center = calculateElementCenterCoordinates(dot);
         const distance = calculateDistance(center.x, center.y, x, y);
@@ -240,6 +240,10 @@ export default class ConnectionController {
       fromDot.dataset.occupied = 'true';
       toDot.dataset.occupied = 'true';
       
+      // Generate new dots for both cards
+      this._generateNewDots(fromCard);
+      this._generateNewDots(toCard);
+      
       // Get position data
       const fromCenter = calculateElementCenterCoordinates(fromDot);
       const toCenter = calculateElementCenterCoordinates(toDot);
@@ -276,6 +280,109 @@ export default class ConnectionController {
     
     // Immediately update the connection position
     this._updateConnectionPosition(connectionId, connection);
+  }
+
+  /**
+   * Generate new dots for a card after a dot becomes occupied
+   * @param {HTMLElement} card - Card element
+   * @private
+   */
+  _generateNewDots(card) {
+    const occupiedDots = card.querySelectorAll('.dot[data-occupied="true"]');
+    const cardRect = card.getBoundingClientRect();
+    const cardStyle = window.getComputedStyle(card);
+    const cardLeft = parseInt(cardStyle.left);
+    const cardTop = parseInt(cardStyle.top);
+    
+    // Corner positions relative to card
+    const corners = [
+      { x: 0, y: 0 }, // top-left
+      { x: cardRect.width, y: 0 }, // top-right
+      { x: cardRect.width, y: cardRect.height }, // bottom-right
+      { x: 0, y: cardRect.height }, // bottom-left
+    ];
+    
+    occupiedDots.forEach(occupiedDot => {
+      const dotSide = parseInt(occupiedDot.dataset.side);
+      const dotRect = occupiedDot.getBoundingClientRect();
+      const dotX = dotRect.left - cardRect.left;
+      const dotY = dotRect.top - cardRect.top;
+      
+      // Generate new dots at midpoints to corners
+      corners.forEach((corner, index) => {
+        const midX = (dotX + corner.x) / 2;
+        const midY = (dotY + corner.y) / 2;
+        
+        // Check if a dot already exists at this position
+        const existingDot = this._findDotAtRelativePosition(card, midX, midY);
+        if (!existingDot) {
+          this._createDot(card, midX, midY, dotSide, index);
+        }
+      });
+    });
+  }
+
+  /**
+   * Create a new dot at specified relative position
+   * @param {HTMLElement} card - Card element
+   * @param {number} x - X position relative to card
+   * @param {number} y - Y position relative to card
+   * @param {number} parentSide - Parent dot's side
+   * @param {number} cornerIndex - Corner index for unique side value
+   * @private
+   */
+  _createDot(card, x, y, parentSide, cornerIndex) {
+    const dot = document.createElement('div');
+    dot.className = 'dot';
+    dot.dataset.side = `${parentSide}-${cornerIndex}`; // Unique identifier
+    dot.dataset.occupied = 'false';
+    
+    // Position the dot
+    dot.style.left = `${x}px`;
+    dot.style.top = `${y}px`;
+    dot.style.transform = 'translate(-50%, -50%)';
+    
+    // Add to card's connector container
+    const connectorContainer = card.querySelector('.card-connectors');
+    connectorContainer.appendChild(dot);
+    
+    // Add event listener for connection start
+    const cardId = parseInt(card.dataset.scenario);
+    dot.addEventListener('pointerdown', (e) => {
+      e.stopPropagation(); // Prevent card drag
+      
+      this.eventBus.emit('connection:start', {
+        cardId: cardId,
+        dotSide: dot.dataset.side,
+        x: e.clientX,
+        y: e.clientY,
+        element: dot
+      });
+    });
+  }
+
+  /**
+   * Find a dot at relative position within a card
+   * @param {HTMLElement} card - Card element
+   * @param {number} x - X position relative to card
+   * @param {number} y - Y position relative to card
+   * @returns {HTMLElement|null} Existing dot or null
+   * @private
+   */
+  _findDotAtRelativePosition(card, x, y) {
+    const dots = card.querySelectorAll('.dot');
+    const threshold = 1; // Allow 1px difference
+    
+    for (let dot of dots) {
+      const dotX = parseFloat(dot.style.left);
+      const dotY = parseFloat(dot.style.top);
+      
+      if (Math.abs(dotX - x) < threshold && Math.abs(dotY - y) < threshold) {
+        return dot;
+      }
+    }
+    
+    return null;
   }
 
   /**
