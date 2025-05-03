@@ -19,6 +19,8 @@ export default class CardController {
     this.eventBus = eventBus;
     this.renderer = renderer;
     this._zIndexCounter = 1;
+    this._lastConnectionUpdateTime = 0; // Timestamp for throttling
+    this._connectionUpdateThrottle = 1; // Update connections every 30ms max
     
     // Set up event listeners
     this._setupEvents();
@@ -192,6 +194,13 @@ export default class CardController {
     // Update card position in state
     this.stateManager.setState(`cards.${data.id}.x`, data.x);
     this.stateManager.setState(`cards.${data.id}.y`, data.y);
+    
+    // Throttle connection updates for performance
+    const now = Date.now();
+    if (now - this._lastConnectionUpdateTime > this._connectionUpdateThrottle) {
+      this._lastConnectionUpdateTime = now;
+      this.eventBus.emit('connections:update');
+    }
   }
 
   /**
@@ -200,7 +209,7 @@ export default class CardController {
    * @private
    */
   _handleCardDragEnd(data) {
-    // Notify connections to update
+    // Final update to connections at drag end to ensure accuracy
     this.eventBus.emit('connections:update');
   }
 
