@@ -5,7 +5,7 @@
 
 import { createElement } from "../../utils";
 import { store } from "../../core/state";
-import { resetGridLayout, saveLayoutToFile, loadLayoutFromFile } from "../../core/layout/GridLayout";
+import { resetGridLayout, saveLayoutToFile, loadLayoutFromFile } from "../../core/layout/GridLayout.js";
 
 /**
  * Creates the application header

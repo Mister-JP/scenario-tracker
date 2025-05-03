@@ -6,13 +6,13 @@
 import { Position, LayoutSpec, CardSpec } from "../../types";
 import { getHeaderOffset } from "../../utils";
 import { store, Constants } from "../state";
-import { createCard } from "../../components/card/Card";
+import { createCard } from "../../components/card/Card.js";
 import {
   getAllConnections,
   clearAllConnections,
   createConnectionFromSaved,
   recalculateAllLines
-} from "../../components/connector/ConnectorManager";
+} from "../../components/connector/ConnectorManager.js";
 
 /**
  * Initializes the grid with cards in default positions

@@ -6,7 +6,7 @@
 import { Position, ConnectionEndpoint, DotSide } from "../../types";
 import { createElement, getElementCenter } from "../../utils";
 import { store, Constants } from "../../core/state";
-import { registerEndpoints } from "../connector/ConnectorManager";
+import { registerEndpoints } from "../connector/ConnectorManager.js";
 
 // Z-index counter to bring active cards to front
 let zIndexCounter = 1;

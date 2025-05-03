@@ -4,7 +4,7 @@
  */
 
 import { createElement } from "../../utils";
-import { removeConnectionById } from "../connector/ConnectorManager";
+import { removeConnectionById } from "../connector/ConnectorManager.js";
 
 // Dialog DOM elements
 let modalOverlay: HTMLDivElement | null = null;

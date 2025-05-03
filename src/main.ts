@@ -3,10 +3,10 @@
  * Initializes all components and starts the application
  */
 
-import { createHeader } from "./components/header/Header";
-import { initializeGrid } from "./core/layout/GridLayout";
-import { initConnectorSystem } from "./components/connector/ConnectorManager";
-import { initDialog } from "./components/dialog/Dialog";
+import { createHeader } from "./components/header/Header.js";
+import { initializeGrid } from "./core/layout/GridLayout.js";
+import { initConnectorSystem } from "./components/connector/ConnectorManager.js";
+import { initDialog } from "./components/dialog/Dialog.js";
 
 /**
  * Initializes the application

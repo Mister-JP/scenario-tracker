@@ -15,7 +15,7 @@ import {
     createSvgElement 
   } from "../../utils";
   import { Constants } from "../../core/state";
-  import { showArrowDialog } from "../dialog/Dialog";
+  import { showArrowDialog } from "../dialog/Dialog.js";
   
   // Store for all connection endpoints (dots)
   const endpoints: ConnectionEndpoint[] = [];
