@@ -2,7 +2,7 @@
  * Card controller for handling card creation and interaction
  * @module controllers/CardController
  */
-import { CardConfig, GridConfig } from '../core/Config.js';
+import { CardConfig, GridConfig } from '../core/config.js';
 import CardModel from '../models/CardModel.js';
 import { getHeaderOffset } from '../utils/DOMUtils.js';
 import { logger } from '../utils/Logger.js';
@@ -84,7 +84,7 @@ export default class CardController {
     handle.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       
-      // Get card position
+      // Get card position (using the actual computed position, not the style property)
       const cardRect = cardElement.getBoundingClientRect();
       const offsetX = e.clientX - cardRect.left;
       const offsetY = e.clientY - cardRect.top;
@@ -94,8 +94,12 @@ export default class CardController {
       
       // Move function
       const move = (moveEvent) => {
-        const x = moveEvent.clientX - offsetX;
-        const y = moveEvent.clientY - offsetY;
+        // Get the workspace element to account for scrolling
+        const workspace = document.getElementById('workspace');
+        
+        // Calculate new position, accounting for scroll offset
+        const x = moveEvent.clientX - offsetX + (workspace ? workspace.scrollLeft : 0);
+        const y = moveEvent.clientY - offsetY + (workspace ? workspace.scrollTop : 0);
         
         // Emit drag move event
         this.eventBus.emit('card:dragmove', { 
