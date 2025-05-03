@@ -3,9 +3,9 @@
  * Handles initialization, resetting, saving, and loading of card layouts
  */
 
-import { Position, LayoutSpec, CardSpec } from "../../types";
-import { getHeaderOffset } from "../../utils";
-import { store, Constants } from "../state";
+import { Position, LayoutSpec, CardSpec } from "../../types/index.js";
+import { getHeaderOffset } from "../../utils/index.js";
+import { store, Constants } from "../state/index.js";
 import { createCard } from "../../components/card/Card.js";
 import {
   getAllConnections,

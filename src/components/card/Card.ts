@@ -3,9 +3,9 @@
  * Handles the creation and management of draggable scenario cards
  */
 
-import { Position, ConnectionEndpoint, DotSide } from "../../types";
-import { createElement, getElementCenter } from "../../utils";
-import { store, Constants } from "../../core/state";
+import { Position, ConnectionEndpoint, DotSide } from "../../types/index.js";
+import { createElement, getElementCenter } from "../../utils/index.js";
+import { store, Constants } from "../../core/state/index.js";
 import { registerEndpoints } from "../connector/ConnectorManager.js";
 
 // Z-index counter to bring active cards to front

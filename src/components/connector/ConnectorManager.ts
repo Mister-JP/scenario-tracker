@@ -8,13 +8,13 @@ import {
     ConnectorLine, 
     Connection,
     DotSide
-  } from "../../types";
+  } from "../../types/index.js";
   import { 
     getElementCenter, 
     calculateDistance, 
     createSvgElement 
-  } from "../../utils";
-  import { Constants } from "../../core/state";
+  } from "../../utils/index.js";
+  import { Constants } from "../../core/state/index.js";
   import { showArrowDialog } from "../dialog/Dialog.js";
   
   // Store for all connection endpoints (dots)

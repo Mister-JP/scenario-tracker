@@ -3,8 +3,8 @@
  * Creates the application header with controls for host, layout management, etc.
  */
 
-import { createElement } from "../../utils";
-import { store } from "../../core/state";
+import { createElement } from "../../utils/index.js";
+import { store } from "../../core/state/index.js";
 import { resetGridLayout, saveLayoutToFile, loadLayoutFromFile } from "../../core/layout/GridLayout.js";
 
 /**

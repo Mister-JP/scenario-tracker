@@ -3,7 +3,7 @@
  * Manages the modal dialog that appears when double-clicking a connection line
  */
 
-import { createElement } from "../../utils";
+import { createElement } from "../../utils/index.js";
 import { removeConnectionById } from "../connector/ConnectorManager.js";
 
 // Dialog DOM elements
