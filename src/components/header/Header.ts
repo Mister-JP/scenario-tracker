@@ -12,6 +12,12 @@ import { resetGridLayout, saveLayoutToFile, loadLayoutFromFile } from "../../cor
  * @returns The header element
  */
 export function createHeader(): HTMLElement {
+  // Check if header already exists to prevent duplication
+  const existingHeader = document.querySelector("header");
+  if (existingHeader) {
+    return existingHeader as HTMLElement;
+  }
+  
   // Create header element
   const header = createElement<HTMLElement>("header");
   
@@ -60,6 +66,9 @@ export function createHeader(): HTMLElement {
   return header;
 }
 
+let isEditingHost = false;
+let isSaving = false;
+
 /**
  * Sets up event handlers for header elements
  * @param editIcon - Host edit icon
@@ -75,8 +84,17 @@ function setupEventHandlers(
   resetButton: HTMLButtonElement,
   fileInput: HTMLInputElement
 ): void {
-  // Edit host button
-  editIcon.addEventListener("click", () => {
+  // Remove any existing click handlers from the edit icon
+  const newEditIcon = editIcon.cloneNode(true) as HTMLImageElement;
+  editIcon.parentNode?.replaceChild(newEditIcon, editIcon);
+  
+  // Add a single click handler to the new icon
+  newEditIcon.addEventListener("click", function editHostHandler(e) {
+    e.stopPropagation(); // Prevent event bubbling
+    
+    if (isEditingHost) return; // Prevent multiple prompts
+    isEditingHost = true;
+
     const currentHost = store.host;
     const newHost = prompt("New host to track", currentHost);
     
@@ -87,6 +105,11 @@ function setupEventHandlers(
         hostValueElement.textContent = store.host;
       }
     }
+
+    // Reset flag after delay
+    setTimeout(() => {
+      isEditingHost = false;
+    }, 1000);
   });
   
   // Reset button
@@ -94,9 +117,17 @@ function setupEventHandlers(
   
   // Save button
   saveButton.addEventListener("click", () => {
+    if (isSaving) return; // Prevent multiple prompts
+    
+    isSaving = true;
     const defaultName = Date.now().toString();
     const fileName = prompt("Save as…", defaultName) || "layout";
     saveLayoutToFile(fileName);
+
+    // Reset flag after delay
+    setTimeout(() => {
+      isSaving = false;
+    }, 1000);
   });
   
   // Load button (trigger file input)
