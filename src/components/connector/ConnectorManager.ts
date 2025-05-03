@@ -235,7 +235,9 @@ function findNearestEndpoint(
     const center = getElementCenter(endpoint.dotElement);
     const distance = calculateDistance(center.x, center.y, x, y);
     
-    logger.debug(`Endpoint on card ${endpoint.cardElement.dataset.id}, side ${endpoint.dotElement.dataset.side}: distance = ${distance.toFixed(2)}`);
+    if (bestEndpoint) {
+      logger.debug(`Selected nearest endpoint: card ${bestEndpoint.cardElement.dataset.id}, side ${bestEndpoint.dotElement.dataset.side}`);
+    }
     
     // If this is closer than previous best, update
     if (distance < bestDistance) {
@@ -245,8 +247,11 @@ function findNearestEndpoint(
     }
   });
   
+  // Then find the problematic code section (around line 250-253) and replace it with:
   if (bestEndpoint) {
-    logger.debug(`Selected nearest endpoint: card ${bestEndpoint.cardElement.dataset.id}, side ${bestEndpoint.dotElement.dataset.side}`);
+    // Use explicit type assertion to tell TypeScript what type bestEndpoint is
+    const endpoint = bestEndpoint as ConnectionEndpoint;
+    logger.debug(`Selected nearest endpoint: card ${endpoint.cardElement.dataset.id}, side ${endpoint.dotElement.dataset.side}`);
   } else {
     logger.debug(`No endpoint found within snap distance (${Constants.CONNECTOR_SNAP_DISTANCE}px)`);
   }

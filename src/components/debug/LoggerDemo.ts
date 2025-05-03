@@ -358,7 +358,7 @@ function demonstrateError(): void {
 /**
  * Demonstrates performance tracking
  */
-function demonstratePerformance(): void {
+function demonstratePerformance(): Promise<void> {
   logger.info("Demonstrating performance tracking");
   
   try {
@@ -416,6 +416,7 @@ function demonstratePerformance(): void {
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined
     });
+    return Promise.resolve();
   }
 }
 
