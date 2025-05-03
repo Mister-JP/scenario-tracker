@@ -761,6 +761,8 @@ export class LoggerConfigurator {
     logDisplayContainer.style.fontSize = "13px";
     logDisplayContainer.style.whiteSpace = "pre-wrap";
     logDisplayContainer.style.padding = "10px";
+    // Add a fixed height to ensure scrolling happens within this container
+    logDisplayContainer.style.height = "calc(65vh - 120px)";
     
     // Create log content div
     const logContent = createElement<HTMLDivElement>("div", "log-content");
