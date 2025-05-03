@@ -1,41 +1,69 @@
-# Debugging Guide for Scenario Viewer
+# Comprehensive Debugging Guide for Scenario Viewer
 
-This document explains how to use the debugging system in the Scenario Viewer application.
+This guide explains the advanced logging and debugging system in the Scenario Viewer application, designed to help both developers and users troubleshoot issues effectively.
 
-## Overview
+## Logging System Overview
 
-The Scenario Viewer includes a comprehensive logging system designed to help debug issues during development and troubleshoot problems in production. The system offers the following features:
+The Scenario Viewer includes a powerful and flexible logging system with the following capabilities:
 
-- Multiple log levels (DEBUG, INFO, WARN, ERROR)
-- Namespace-based logging to focus on specific components
-- UI configuration panel to control logging at runtime
-- Persistent settings via localStorage
-- Formatted log output with timestamps and visual styling
-- Performance optimizations to minimize impact when not needed
+- **Multiple Log Levels**: TRACE, DEBUG, INFO, WARN, ERROR, NONE
+- **Namespace-based Logging**: Focus on specific components
+- **Interactive Debug UI**: Configure logging in real-time
+- **Log History**: View and analyze past log entries
+- **Performance Monitoring**: Track function execution times
+- **Context Tracking**: Maintain state across operations
+- **Log Bucketing**: Group repetitive log messages
+- **Export Capabilities**: Save logs for external analysis
 
 ## Log Levels
 
-The system supports the following log levels, in order of verbosity:
+The system supports these log levels, in order of increasing severity:
 
-1. **DEBUG** - Detailed information for debugging purposes
-2. **INFO** - General application flow and important events
-3. **WARN** - Potentially problematic situations that don't prevent operation
-4. **ERROR** - Error conditions that need attention
-5. **NONE** - Special level used to disable logging entirely
+1. **TRACE** - Most detailed information for deep debugging
+2. **DEBUG** - Diagnostic information useful during development
+3. **INFO** - General application flow and important events
+4. **WARN** - Potentially problematic situations that don't prevent operation
+5. **ERROR** - Error conditions that need immediate attention
+6. **NONE** - Special level used to disable logging entirely
 
-By default, the system shows only WARN and ERROR messages to keep the console clean, but you can adjust this through the UI.
+By default, the system shows only WARN and ERROR messages to keep the console clean, but you can adjust this through the Debug UI.
 
-## Using the Debug Panel
+## Using the Debug UI
 
-The application includes a debug panel accessible through the "🐞 Debug" button in the top-right corner of the header. This panel allows you to:
+The application includes a comprehensive debug panel accessible through the "🐞 Debug" button in the top-right corner of the header.
 
-- Set the global log level
-- Configure log levels for specific components
-- Toggle display of timestamps and namespaces
-- Reset configuration to defaults
-- Enable verbose debugging for all components
+### Settings Tab
 
-Changes made in this panel are saved in localStorage and persisted between sessions.
+The Settings tab allows you to configure global logging options:
+
+- **Global Log Level**: Set the minimum log level for all components
+- **Display Options**: Toggle timestamps, namespace display, and log bucketing
+- **Advanced Settings**: Configure log history size
+- **Actions**: Reset to defaults, enable all debugging, or clear log history
+
+### Namespaces Tab
+
+The Namespaces tab allows you to:
+
+- **Filter Namespaces**: Apply a regex pattern to show only matching namespaces
+- **Configure Log Levels**: Set specific log levels for individual components
+- **Add Custom Namespaces**: Add and configure additional namespaces
+
+### Logs Tab
+
+The Logs tab provides a live view of the application log history:
+
+- **Filter by Level**: Show only logs at or above a specific level
+- **Text Filter**: Search for specific content in logs
+- **Clear Logs**: Reset the log history
+- **Export Logs**: Save logs to a file for external analysis
+
+### Performance Tab
+
+The Performance tab offers tools and examples for performance monitoring:
+
+- **Code Examples**: How to use performance measurement tools
+- **Test Functions**: Try out performance monitoring
 
 ## URL Parameters
 
@@ -54,7 +82,8 @@ import { createLogger } from "../../utils/Logger.js";
 // Create a logger for the component
 const logger = createLogger("YourComponentName");
 
-// Log messages at different levels
+// Basic logging at different levels
+logger.trace("Most detailed debugging information");
 logger.debug("Detailed debugging information", { someObject: value });
 logger.info("General information about application flow");
 logger.warn("Warning about potential issues");
@@ -65,77 +94,255 @@ logger.group("Operation Name");
 logger.debug("Step 1");
 logger.debug("Step 2");
 logger.groupEnd();
-```
 
-## Best Practices
+// Performance measurement
+logger.startPerformanceMeasurement("operation");
+// ... your code here ...
+const elapsed = logger.endPerformanceMeasurement("operation");
 
-1. **Use appropriate log levels:**
-   - DEBUG: Implementation details, variables, and flow
-   - INFO: Important events and state changes
-   - WARN: Problems that don't stop functionality
-   - ERROR: Critical failures and exceptions
+// Track function execution
+const result = logger.trackFunction("functionName", () => {
+  // Your function code
+  return someValue;
+});
 
-2. **Choose clear namespaces:** Use component or module names for namespaces (e.g., "Card", "ConnectorManager").
+// Track async function execution
+const result = await logger.trackAsyncFunction("asyncOperation", async () => {
+  // Your async code
+  return await someValue;
+});
 
-3. **Include context:** When logging objects or errors, include them as a second parameter rather than string concatenation.
+// Contextual logging
+logger.setContext("requestId", "123456");
+logger.debug("Processing request"); // Will include requestId in the log data
 
-4. **Use grouped logs:** For operations with multiple steps, use `group()` and `groupEnd()` to organize logs.
-
-5. **Be concise but clear:** Log messages should be informative but not excessive.
-
-## Performance Considerations
-
-The logging system is designed to have minimal impact when logs are disabled. However, complex object parameters in disabled log messages can still cause performance issues. In performance-critical code, you can guard log creation:
-
-```typescript
+// Conditional logging to avoid expensive operations
 if (logger.isDebugEnabled()) {
   logger.debug("Expensive log message", calculateExpensiveObject());
 }
 ```
 
-## Troubleshooting Common Issues
+## Best Practices
 
-If you're debugging a specific issue:
+### 1. Use Appropriate Log Levels
 
-1. Enable DEBUG level for the relevant component(s)
-2. Check the console for detailed logs
-3. Look for warnings or errors
-4. Use the "Enable All Debug" button for comprehensive logging
-5. Check network requests and browser console for additional errors
+- **TRACE**: Implementation details, very verbose information
+- **DEBUG**: Variables, flow, and state changes useful for development
+- **INFO**: Important events and significant state changes
+- **WARN**: Problems that don't stop functionality but need attention
+- **ERROR**: Critical failures, exceptions, and serious issues
 
-## Example Debug Workflow
+### 2. Structured Component Logging
 
-When troubleshooting a connection issue:
+Organize your logging by component functionality:
 
-1. Click the "🐞 Debug" button in the header
-2. Set "ConnectorManager" to DEBUG level
-3. Try to reproduce the issue
-4. Analyze the logs to see where the problem occurs
-5. If needed, enable DEBUG for related components (Card, Store, etc.)
+```typescript
+// 1. Component initialization
+logger.debug("Initializing ConnectorManager");
 
-## Log Format
+// 2. Key state changes
+logger.info(`Setting host to ${newHost}`);
 
-The default log format includes:
+// 3. User interactions
+logger.debug("Card dragged", { cardId, position });
 
-- Timestamp: [HH:MM:SS.mmm]
-- Log level: INFO, DEBUG, etc. (color-coded)
-- Namespace: [ComponentName]
-- Message: Your log message
-- Optional data: Objects, arrays, or errors
+// 4. External interactions
+logger.debug("Loading layout from file", { filename });
 
-Example:
+// 5. Error conditions with context
+logger.error("Failed to create connection", { 
+  fromCardId, 
+  toCardId,
+  error: error.message
+});
 ```
-[12:34:56.789] DEBUG [ConnectorManager] Finding nearest endpoint to (120, 150)
+
+### 3. Creating Technical Depth in Logs
+
+To achieve technical depth, make sure logs tell a complete story:
+
+```typescript
+// Start of a complex operation
+logger.group("Creating connection between cards");
+
+// Log pre-conditions
+logger.debug("Initial state", { fromCard, toCard });
+
+// Log decision points with reasoning
+logger.debug("Selected endpoint strategy: nearest", { 
+  strategy: "nearest", 
+  reason: "Multiple endpoints available"
+});
+
+// Log intermediate calculations
+logger.trace("Distance calculations", { 
+  distances: endpointDistances,
+  closest: closestEndpoint
+});
+
+// Log outcome
+logger.debug("Connection created successfully", { connectionId });
+
+// End the group
+logger.groupEnd();
 ```
 
-## Saving Logs
+### 4. Use Context for Related Operations
 
-For persistent issues, you can save logs from the browser console:
+Context allows tracking related operations across function calls:
 
-1. Right-click in the console
-2. Select "Save as..." to create a log file
-3. Share this file with the development team
+```typescript
+// Set context at the beginning of an operation
+logger.setContext("operationId", uuidv4());
+logger.setContext("startTime", Date.now());
+
+// Later in the code, even in different functions
+logger.debug("Operation step completed"); // Will include context
+
+// Clear when done
+logger.clearAllContext();
+```
+
+### 5. Performance Monitoring
+
+Use performance tracking for critical operations:
+
+```typescript
+// Simple measurements
+logger.startPerformanceMeasurement("layoutCalculation");
+calculateLayout();
+logger.endPerformanceMeasurement("layoutCalculation");
+
+// Automatic function tracking
+logger.trackFunction("renderCards", renderCards);
+
+// Log slow operations
+const elapsed = logger.endPerformanceMeasurement("operation");
+if (elapsed > 100) {
+  logger.warn("Operation took longer than expected", { elapsed });
+}
+```
+
+## Interpreting Logs
+
+When analyzing logs for issues:
+
+1. Start with ERROR logs to identify critical problems
+2. Look for WARN messages that might explain unexpected behavior
+3. Enable DEBUG level for components related to the issue
+4. Use the text filter to find specific operations or components
+5. Look for patterns in timing and operation sequence
+6. Check for performance bottlenecks using timing measurements
+
+## Common Debugging Scenarios
+
+### 1. Debugging Connection Issues
+
+```
+# Enable ConnectorManager debugging
+1. Click the "🐞 Debug" button
+2. In the Namespaces tab, set "ConnectorManager" to DEBUG level
+3. Try to create a connection and observe the logs
+4. Look for logs related to endpoint finding, distance calculations
+
+# Key logs to look for:
+- "Finding nearest endpoint to (x, y)"
+- "Selected endpoint: card X, side Y"
+- "Connection created" or error messages
+```
+
+### 2. Investigating Layout Problems
+
+```
+# Debug the grid layout
+1. Set "GridLayout" level to DEBUG
+2. Reset or load a layout
+3. Check the logs for card positioning information
+4. Look for warnings about position constraints or overlaps
+
+# Key logs to look for:
+- "Initializing grid layout"
+- "Positioning card X at (x, y)"
+- "Card dimensions: width x height"
+```
+
+### 3. Performance Issues
+
+```
+# Enable performance tracking
+1. Set relevant components to DEBUG level
+2. Look for logs containing "⏱️" symbol
+3. Check for operations taking longer than expected
+4. Use the Performance tab to monitor specific operations
+
+# Key metrics to watch:
+- Card creation time
+- Connection calculation time
+- Layout calculation time
+- Event handler response times
+```
+
+## Exporting Logs for Analysis
+
+For persistent issues or to share with the development team:
+
+1. Open the Debug UI and go to the Logs tab
+2. Set filters to capture relevant information
+3. Click "Export" to save logs as a text file
+4. Share this file with the development team
 
 ## Storage and Clearing
 
 Logger configuration is stored in localStorage under the key `scenario-viewer-logger-config`. You can reset to defaults using the "Reset to Defaults" button in the Debug panel, or by clearing localStorage.
+
+## Contributing to the Logging System
+
+If you're extending the application:
+
+1. Add appropriate logging to new components using the patterns above
+2. Add your component's namespace to the `KNOWN_NAMESPACES` array in `LoggerConfigurator.ts`
+3. Consider adding component-specific debug views if needed
+4. Document common debug patterns for your component
+
+## Advanced Features
+
+### Log Pattern Analysis
+
+For complex issues, you can export logs and use pattern analysis:
+
+```javascript
+// Example of post-processing logs (in browser console or external tool)
+const logs = Logger.getLogHistory();
+
+// Filter logs by pattern
+const connectionLogs = logs.filter(log => 
+  log.namespace === "ConnectorManager" && 
+  log.message.includes("Connection")
+);
+
+// Calculate statistics
+const avgConnectionTime = connectionLogs.reduce((sum, log) => 
+  sum + (log.data?.elapsed || 0), 0) / connectionLogs.length;
+
+console.log(`Average connection time: ${avgConnectionTime}ms`);
+```
+
+### Custom Views
+
+You can create custom debug views for specific components:
+
+```javascript
+// Access the logger in the console
+const logger = window.__scenarioLogger;
+
+// Create custom analysis
+logger.getLogHistory()
+  .filter(log => log.namespace === "YourComponent")
+  .forEach(log => console.table(log.data));
+```
+
+## Conclusion
+
+The logging system in Scenario Viewer is designed to provide deep technical insight while remaining flexible and easy to use. By understanding how to leverage its capabilities, you can effectively diagnose and solve issues in development and production environments.
+
+For further assistance, please consult the source code or contact the development team.
