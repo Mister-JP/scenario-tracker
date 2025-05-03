@@ -2,7 +2,7 @@
  * Card controller for handling card creation and interaction
  * @module controllers/CardController
  */
-import { CardConfig, GridConfig } from '../core/config.js';
+import { CardConfig, GridConfig } from '../core/Config.js';
 import CardModel from '../models/CardModel.js';
 import { getHeaderOffset } from '../utils/DOMUtils.js';
 import { logger } from '../utils/Logger.js';
@@ -84,22 +84,48 @@ export default class CardController {
     handle.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       
-      // Get card position (using the actual computed position, not the style property)
-      const cardRect = cardElement.getBoundingClientRect();
-      const offsetX = e.clientX - cardRect.left;
-      const offsetY = e.clientY - cardRect.top;
+      // Get the workspace element
+      const workspace = document.getElementById('workspace');
+      
+      // Record the initial mouse position
+      const startX = e.clientX;
+      const startY = e.clientY;
+      
+      // Record the initial scroll position
+      const startScrollLeft = workspace.scrollLeft;
+      const startScrollTop = workspace.scrollTop;
+      
+      // Get the current card position from styles or from getBoundingClientRect
+      let startLeft, startTop;
+      
+      const cardStyle = window.getComputedStyle(cardElement);
+      if (cardStyle.left !== 'auto' && !cardStyle.left.includes('%')) {
+        startLeft = parseFloat(cardStyle.left);
+        startTop = parseFloat(cardStyle.top);
+      } else {
+        // Fall back to calculating position from getBoundingClientRect
+        const cardRect = cardElement.getBoundingClientRect();
+        const workspaceRect = workspace.getBoundingClientRect();
+        startLeft = cardRect.left - workspaceRect.left + workspace.scrollLeft;
+        startTop = cardRect.top - workspaceRect.top + workspace.scrollTop;
+      }
       
       // Emit drag start event
       this.eventBus.emit('card:dragstart', { id: scenarioId });
       
       // Move function
       const move = (moveEvent) => {
-        // Get the workspace element to account for scrolling
-        const workspace = document.getElementById('workspace');
+        // Calculate how far the mouse has moved from its initial position
+        const deltaX = moveEvent.clientX - startX;
+        const deltaY = moveEvent.clientY - startY;
         
-        // Calculate new position, accounting for scroll offset
-        const x = moveEvent.clientX - offsetX + (workspace ? workspace.scrollLeft : 0);
-        const y = moveEvent.clientY - offsetY + (workspace ? workspace.scrollTop : 0);
+        // Calculate how far the workspace has scrolled
+        const scrollDeltaX = workspace.scrollLeft - startScrollLeft;
+        const scrollDeltaY = workspace.scrollTop - startScrollTop;
+        
+        // Apply both the mouse movement and the scroll movement to the card's initial position
+        const x = startLeft + deltaX + scrollDeltaX;
+        const y = startTop + deltaY + scrollDeltaY;
         
         // Emit drag move event
         this.eventBus.emit('card:dragmove', { 
