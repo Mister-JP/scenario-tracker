@@ -39,6 +39,54 @@ export default class ConnectionController {
     this.eventBus.on('dom:initialized', this._setupDOMEvents.bind(this));
   }
 
+  _handleConnectionStart(data) {
+    logger.debug('Connections', 'Starting connection', {
+      fromCard: data.cardId,
+      fromDot: data.dotSide,
+      position: { x: data.x, y: data.y }
+    });
+    
+    // Get center of the starting dot
+    const startDot = data.element;
+    const dotCenter = calculateElementCenterCoordinates(startDot);
+    
+    // Create temporary line with correct starting position
+    const tempLine = this.svgRenderer.createConnectionLine({
+      id: 'temp-connection',
+      x1: dotCenter.x, // Use dot center instead of mouse position
+      y1: dotCenter.y,
+      x2: data.x,
+      y2: data.y,
+      color: '#4cc9f0', // Use a distinctive color for the drawing line
+      width: 3 // Make it slightly thicker for better visibility
+    });
+    
+    // Set active drawing state
+    this.activeDrawing = {
+      fromCardId: data.cardId,
+      fromDotSide: data.dotSide,
+      fromDot: data.element,
+      startX: dotCenter.x,
+      startY: dotCenter.y,
+      line: tempLine
+    };
+    
+    // Make sure the line has pointer-events set to none to avoid interference
+    tempLine.style.pointerEvents = 'none';
+  }
+  
+  _handlePointerMove(e) {
+    if (!this.activeDrawing) return;
+    
+    // Update line end position using the saved start position
+    this.svgRenderer.updateConnectionCoordinates('temp-connection', {
+      x1: this.activeDrawing.startX,
+      y1: this.activeDrawing.startY,
+      x2: e.clientX,
+      y2: e.clientY
+    });
+  }
+
   /**
    * Set up connection-related event listeners
    * @private
@@ -84,53 +132,6 @@ export default class ConnectionController {
         }
       });
     }
-  }
-
-  /**
-   * Handle the start of a connection drawing
-   * @param {Object} data - Event data (cardId, dotSide, x, y, element)
-   * @private
-   */
-  _handleConnectionStart(data) {
-    logger.debug('Connections', 'Starting connection', {
-      fromCard: data.cardId,
-      fromDot: data.dotSide,
-      position: { x: data.x, y: data.y }
-    });
-    
-    // Create temporary line
-    const tempLine = this.svgRenderer.createConnectionLine({
-      id: 'temp-connection',
-      x1: data.x,
-      y1: data.y,
-      x2: data.x,
-      y2: data.y
-    });
-    
-    // Set active drawing state
-    this.activeDrawing = {
-      fromCardId: data.cardId,
-      fromDotSide: data.dotSide,
-      fromDot: data.element,
-      line: tempLine
-    };
-  }
-
-  /**
-   * Handle pointer movement during connection drawing
-   * @param {PointerEvent} e - Pointer event
-   * @private
-   */
-  _handlePointerMove(e) {
-    if (!this.activeDrawing) return;
-    
-    // Update line end position
-    this.svgRenderer.updateConnectionCoordinates('temp-connection', {
-      x1: this.activeDrawing.startX || e.clientX,
-      y1: this.activeDrawing.startY || e.clientY,
-      x2: e.clientX,
-      y2: e.clientY
-    });
   }
 
   /**
@@ -267,6 +268,14 @@ export default class ConnectionController {
         this.domRenderer.showDialog(connectionId);
       });
     }
+
+    // Force an immediate rendering of the connection by triggering a reflow
+    this.svgContainer.style.display = 'none';
+    this.svgContainer.offsetHeight; // Force reflow
+    this.svgContainer.style.display = '';
+    
+    // Immediately update the connection position
+    this._updateConnectionPosition(connectionId, connection);
   }
 
   /**

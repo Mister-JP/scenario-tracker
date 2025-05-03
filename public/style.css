@@ -134,13 +134,12 @@ header button:hover {
   overflow: hidden;
   background: white;
   box-shadow: var(--shadow-md);
-  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+  transition: box-shadow var(--transition-fast);
   border: 1px solid var(--gray-light);
 }
 
 .card:hover {
   box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
 }
 
 .card-header {
@@ -398,3 +397,29 @@ header button:hover {
     width: 95%;
   }
 }
+
+
+/* Improved arrow visibility in SVG connections */
+#connections-svg line {
+  stroke-width: 2.5px !important; /* Increased from default 2px */
+  stroke: #3a86ff !important; /* Brighter blue color */
+  filter: drop-shadow(0 0 2px rgba(58, 134, 255, 0.4)); /* Subtle glow effect */
+}
+
+/* Arrow head styles */
+#arrow-head polygon {
+  fill: #3a86ff !important; /* Match the line color */
+}
+
+/* Hover effect for better interaction */
+#connections-svg line:hover {
+  stroke-width: 4px !important;
+  stroke: #4361ee !important; /* Slightly different color on hover */
+  cursor: pointer;
+}
+
+/* Make sure connection lines appear above the grid but below the cards */
+#connections-svg {
+  z-index: 25 !important; 
+}
+

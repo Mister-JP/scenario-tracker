@@ -20,7 +20,7 @@ export default class SVGRenderer {
   createSVGContainer() {
     const svgContainer = createSvgElement('svg', {
       'id': 'connections-svg',
-      'style': 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;'
+      'style': 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 10;'
     });
     
     // Add arrow marker definition
@@ -43,7 +43,11 @@ export default class SVGRenderer {
     defs.appendChild(marker);
     svgContainer.appendChild(defs);
     
+    // Ensure the SVG container is appended to the body and properly visible
     document.body.appendChild(svgContainer);
+    
+    // Force a reflow to ensure the SVG container is rendered immediately
+    svgContainer.getBoundingClientRect();
     
     this._svgContainer = svgContainer;
     return svgContainer;
