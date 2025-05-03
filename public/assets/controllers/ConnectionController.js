@@ -294,29 +294,60 @@ export default class ConnectionController {
     const cardLeft = parseInt(cardStyle.left);
     const cardTop = parseInt(cardStyle.top);
     
-    // Corner positions relative to card
-    const corners = [
-      { x: 0, y: 0 }, // top-left
-      { x: cardRect.width, y: 0 }, // top-right
-      { x: cardRect.width, y: cardRect.height }, // bottom-right
-      { x: 0, y: cardRect.height }, // bottom-left
+    // Define border positions (not corners)
+    const borderPositions = [
+      { x: cardRect.width / 2, y: 0 },          // top center
+      { x: cardRect.width, y: cardRect.height / 2 },  // right center
+      { x: cardRect.width / 2, y: cardRect.height },  // bottom center
+      { x: 0, y: cardRect.height / 2 }          // left center
     ];
     
     occupiedDots.forEach(occupiedDot => {
-      const dotSide = parseInt(occupiedDot.dataset.side);
-      const dotRect = occupiedDot.getBoundingClientRect();
-      const dotX = dotRect.left - cardRect.left;
-      const dotY = dotRect.top - cardRect.top;
+      const dotSide = occupiedDot.dataset.side;
       
-      // Generate new dots at midpoints to corners
-      corners.forEach((corner, index) => {
-        const midX = (dotX + corner.x) / 2;
-        const midY = (dotY + corner.y) / 2;
-        
-        // Check if a dot already exists at this position
-        const existingDot = this._findDotAtRelativePosition(card, midX, midY);
+      // Get which border this dot is on
+      const borderIndex = parseInt(dotSide.split('-')[0] || dotSide);
+      
+      if (isNaN(borderIndex) || borderIndex >= borderPositions.length) return;
+      
+      // Only generate new dots on the same border
+      const currentBorder = borderPositions[borderIndex];
+      
+      // Find the next available position on this border
+      let newPositions = [];
+      
+      switch (borderIndex) {
+        case 0: // top border
+          newPositions = [
+            { x: cardRect.width * 0.25, y: 0 },   // quarter point left
+            { x: cardRect.width * 0.75, y: 0 }    // quarter point right
+          ];
+          break;
+        case 1: // right border
+          newPositions = [
+            { x: cardRect.width, y: cardRect.height * 0.25 },   // quarter point top
+            { x: cardRect.width, y: cardRect.height * 0.75 }    // quarter point bottom
+          ];
+          break;
+        case 2: // bottom border
+          newPositions = [
+            { x: cardRect.width * 0.25, y: cardRect.height },   // quarter point left
+            { x: cardRect.width * 0.75, y: cardRect.height }    // quarter point right
+          ];
+          break;
+        case 3: // left border
+          newPositions = [
+            { x: 0, y: cardRect.height * 0.25 },   // quarter point top
+            { x: 0, y: cardRect.height * 0.75 }    // quarter point bottom
+          ];
+          break;
+      }
+      
+      // Create new dots at these positions if they don't already exist
+      newPositions.forEach((pos, index) => {
+        const existingDot = this._findDotAtRelativePosition(card, pos.x, pos.y);
         if (!existingDot) {
-          this._createDot(card, midX, midY, dotSide, index);
+          this._createDot(card, pos.x, pos.y, borderIndex, index);
         }
       });
     });
@@ -328,13 +359,13 @@ export default class ConnectionController {
    * @param {number} x - X position relative to card
    * @param {number} y - Y position relative to card
    * @param {number} parentSide - Parent dot's side
-   * @param {number} cornerIndex - Corner index for unique side value
+   * @param {number} index - Position index for unique side value
    * @private
    */
-  _createDot(card, x, y, parentSide, cornerIndex) {
+  _createDot(card, x, y, parentSide, index) {
     const dot = document.createElement('div');
     dot.className = 'dot';
-    dot.dataset.side = `${parentSide}-${cornerIndex}`; // Unique identifier
+    dot.dataset.side = `${parentSide}-${index}`; // Unique identifier
     dot.dataset.occupied = 'false';
     
     // Position the dot
