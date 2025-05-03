@@ -1,0 +1,85 @@
+# Scenario Viewer Architecture
+
+## Overview
+
+The Scenario Viewer application follows a Model-View-Controller (MVC) architecture with a pub/sub state management pattern. This document provides a high-level overview of the architecture and data flow.
+
+## Data Flow Diagram
+
+```
+┌─────────┐        ┌────────────┐        ┌──────────────┐
+│   User  │        │            │        │              │
+│ Actions │──────▶│ Controllers │──────▶│ StateManager │
+└─────────┘        │            │        │              │
+      ▲            └────────────┘        └──────────────┘
+      │                   │                     │
+      │                   │                     │
+      │                   ▼                     │
+      │            ┌────────────┐               │
+      │            │            │               │
+      └────────────│  EventBus  │◀──────────────┘
+                   │            │
+                   └────────────┘
+                          │
+                          │
+                          ▼
+                   ┌────────────┐
+                   │            │
+                   │ DOMRenderer│
+                   │            │
+                   └────────────┘
+```
+
+1. **User Action**: User interacts with UI (drag card, click button, etc.)
+2. **Controller**: Processes input, applies business logic
+3. **StateManager**: Updates application state, notifies subscribers
+4. **EventBus**: Routes events between decoupled components
+5. **DOMRenderer**: Updates DOM based on state changes
+
+## Component Responsibilities
+
+### Core
+- **StateManager**: Central state container with pub/sub pattern
+- **EventBus**: Lightweight event system for decoupled communication
+- **Config**: Domain-specific configuration constants
+
+### Models
+- **CardModel**: Pure data representation of scenario cards
+- **ConnectionModel**: Data representation of connections between cards
+
+### Controllers
+- **AppController**: Orchestrates initialization and coordination
+- **CardController**: Manages card creation and interaction
+- **ConnectionController**: Handles connection drawing and manipulation
+- **LayoutController**: Manages layout persistence and restoration
+
+### Views
+- **DOMRenderer**: Abstracts all DOM manipulation
+- **SVGRenderer**: Specialized renderer for connections
+
+### Utils
+- **DOMUtils**: DOM-specific utility functions
+- **Logger**: Simple logging system with configurable levels
+
+## Key Design Principles
+
+1. **Separation of Concerns**: Business logic separated from data and presentation
+2. **Data-Driven Architecture**: DOM updates in response to state changes
+3. **Event-Driven Communication**: Components communicate via events rather than direct calls
+4. **Immutable State**: State updated through controlled StateManager methods
+5. **Pure Functions**: Business logic uses pure functions where possible
+
+## Terminology Mapping
+
+| Old Term | New Term | Description |
+|----------|----------|-------------|
+| `store` | `applicationState` | Central state container |
+| `setupWorkspace()` | `initializeWorkspaceContainer()` | Initialize workspace container |
+| `clearAllConnections()` | `removeAllConnectionsFromModelAndDom()` | Remove connections from state and DOM |
+| `zIndexCounter` | `getNextZIndex()` | Function that manages its own state |
+| `Constants` | `CardConfig`, `GridConfig`, etc. | Domain-specific configurations |
+| `cards` | `cardElements` or `cardModels` | Clarified DOM vs data naming |
+| `finalizeConnection()` | `completeAndRenderConnection()` | More descriptive name |
+| `loadLayout()` | `deserializeAndApplyLayout()` | Clarifies data conversion |
+| `getElementCenter()` | `calculateElementCenterCoordinates()` | Explicit calculation |
+| `createCard()` | `createCardModelAndElement()` | States dual nature |

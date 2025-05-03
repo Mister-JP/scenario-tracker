@@ -12,11 +12,8 @@
     "declaration": false,
     "removeComments": false,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {
-      "/*": ["src/*"]
-    }
+    "baseUrl": "."
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.js"],
   "exclude": ["node_modules"]
 }
