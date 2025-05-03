@@ -1,2 +1,64 @@
-<!-- Replace the script tags at the bottom with this -->
-<script type="module" src="assets/main.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scenario Viewer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Scenario Viewer</h1>
+    <div class="host-container">
+      Host: <span id="host-value">http://localhost:8080</span>
+      <img src="icons/edit.svg" id="edit-host" alt="Edit Host" title="Edit host URL">
+    </div>
+    <div class="controls">
+      <button id="reset-layout-btn">Reset Layout</button>
+      <button id="load-layout-btn">Load Layout</button>
+      <button id="save-layout-btn">Save Layout</button>
+    </div>
+  </header>
+  
+  <main id="workspace"></main>
+  
+  <!-- Hidden file input for layout loading -->
+  <input type="file" id="file-input" accept=".json" style="display: none;">
+  
+  <!-- Card template -->
+  <template id="card-template">
+    <div class="card">
+      <div class="card-header">
+        <div class="handle"></div>
+        <h2>Scenario Title</h2>
+      </div>
+      <div class="card-content">
+        <iframe></iframe>
+      </div>
+      <div class="card-connectors">
+        <div class="dot dot-top" data-side="0" data-occupied="false"></div>
+        <div class="dot dot-right" data-side="1" data-occupied="false"></div>
+        <div class="dot dot-bottom" data-side="2" data-occupied="false"></div>
+        <div class="dot dot-left" data-side="3" data-occupied="false"></div>
+      </div>
+    </div>
+  </template>
+  
+  <!-- Modal dialog for connections -->
+  <div id="modal-overlay" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-close">×</div>
+        <h2>Connection Options</h2>
+        <button class="modal-remove-btn">Remove</button>
+      </div>
+      <div class="modal-body">
+        <p>This connection represents scenario flow from one view to another.</p>
+        <p>Click "Remove" to delete this connection, or close this dialog to keep it.</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="assets/main.js"></script>
+</body>
+</html>
