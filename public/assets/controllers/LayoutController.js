@@ -245,7 +245,7 @@ export default class LayoutController {
       });
     }
     
-    // Get connection data
+    // Get connection data with position information
     const connections = [];
     const connectionModels = this.stateManager.getState('connections');
     
@@ -254,8 +254,10 @@ export default class LayoutController {
         connections.push({
           fromId: conn.fromCardId,
           fromSide: conn.fromSide,
+          fromPosition: conn.fromPosition,
           toId: conn.toCardId,
-          toSide: conn.toSide
+          toSide: conn.toSide,
+          toPosition: conn.toPosition
         });
       });
     }
@@ -320,10 +322,20 @@ export default class LayoutController {
         });
       }
       
-      // Process connections
+      // Process connections - handle legacy format
       if (layout.connections && Array.isArray(layout.connections)) {
         layout.connections.forEach(conn => {
-          this.connectionController.createConnectionFromData(conn);
+          // Handle backward compatibility
+          const connectionData = {
+            fromId: conn.fromId,
+            fromSide: conn.fromSide,
+            fromPosition: conn.fromPosition || 0.5,
+            toId: conn.toId,
+            toSide: conn.toSide,
+            toPosition: conn.toPosition || 0.5
+          };
+          
+          this.connectionController.createConnectionFromData(connectionData);
         });
       }
       

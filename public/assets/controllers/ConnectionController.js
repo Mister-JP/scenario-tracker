@@ -179,7 +179,8 @@ export default class ConnectionController {
     defaultDots.forEach((dotData, index) => {
       const dotElement = card.querySelector(`.dot[data-side="${index}"]`);
       if (dotElement) {
-        const dotId = `dot-${cardId}-${index}`;
+        // Use consistent ID format for all dots
+        const dotId = `dot-${cardId}-${index}-500`; // 500 represents 0.5 position
         dotElement.dataset.dotId = dotId;
         
         this._dots[cardId].push({
@@ -193,15 +194,65 @@ export default class ConnectionController {
     });
   }
 
+  /**
+   * Extract dot information from various formats
+   * @param {string|number} dotSide - Dot identifier in various formats
+   * @returns {Object} Extracted side and position information
+   */
+  _extractDotInfo(dotSide) {
+    // Handle case where dotSide is already a dot object
+    if (typeof dotSide === 'object' && dotSide !== null) {
+      return {
+        side: dotSide.side,
+        position: dotSide.position || 0.5
+      };
+    }
+    
+    // Convert to string for consistent processing
+    const dotStr = String(dotSide);
+    
+    // If it's a new-style ID (dot-cardId-side-position)
+    if (dotStr.startsWith('dot-')) {
+      const parts = dotStr.split('-');
+      if (parts.length >= 4) {
+        return {
+          side: parseInt(parts[2], 10),
+          position: parseInt(parts[3], 10) / 1000
+        };
+      }
+    }
+    
+    // If it's a simple number
+    if (!isNaN(parseInt(dotStr, 10))) {
+      return {
+        side: parseInt(dotStr, 10),
+        position: 0.5
+      };
+    }
+    
+    // Default fallback
+    return { side: 0, position: 0.5 };
+  }
+
   _completeAndRenderConnection(fromCardId, fromDotSide, toCardId, toDotSide, toDotPosition) {
     const connectionId = ConnectionModel.generateId();
     
+    // Extract position from dot IDs
+    const fromDotData = this._extractDotInfo(fromDotSide);
+    const toDotData = {
+      side: toDotSide,
+      position: toDotPosition
+    };
+    
+    // Create connection with position data
     const connection = new ConnectionModel(
       connectionId,
       fromCardId,
-      fromDotSide,
+      fromDotData.side,
       toCardId,
-      toDotSide
+      toDotData.side,
+      fromDotData.position,
+      toDotData.position
     );
     
     this.stateManager.setState(`connections.${connectionId}`, connection);
@@ -210,14 +261,15 @@ export default class ConnectionController {
     const toCard = document.querySelector(`.card[data-scenario="${toCardId}"]`);
     
     if (fromCard && toCard) {
-      const fromDot = this._findDotByData(fromCard, fromDotSide);
-      const toDot = this._findDotByData(toCard, toDotSide, toDotPosition);
+      const fromDot = this._findDotByData(fromCard, fromDotData.side, fromDotData.position);
+      const toDot = this._findDotByData(toCard, toDotData.side, toDotData.position);
       
       if (!fromDot || !toDot) {
         logger.error('Connections', 'Could not find dots for connection', {
-          fromDotSide,
-          toDotSide,
-          toDotPosition
+          fromDotSide: fromDotData.side,
+          fromDotPosition: fromDotData.position,
+          toDotSide: toDotData.side,
+          toDotPosition: toDotData.position
         });
         // Clean up failed connection
         const connections = { ...this.stateManager.getState('connections') };
@@ -275,19 +327,17 @@ export default class ConnectionController {
     
     let dotData;
     if (position !== null) {
-      dotData = this._dots[cardId].find(d => d.side === side && Math.abs(d.position - position) < 0.01);
+      // Find dot with matching side and position
+      dotData = this._dots[cardId].find(d => 
+        d.side === side && 
+        Math.abs(d.position - position) < 0.01
+      );
     } else {
-      // Handle old format (simple numbers 0-3)
-      const parsedSide = parseInt(side, 10);
-      if (!isNaN(parsedSide)) {
-        dotData = this._dots[cardId].find(d => d.side === parsedSide);
-      } else {
-        // Handle old complex format (e.g., "0-0")
-        if (side.toString().includes('-')) {
-          const baseNumber = side.toString().split('-')[0];
-          dotData = this._dots[cardId].find(d => d.side === parseInt(baseNumber, 10));
-        }
-      }
+      // Fallback to finding any unoccupied dot on the side
+      dotData = this._dots[cardId].find(d => 
+        d.side === side && 
+        !d.occupied
+      );
     }
     
     return dotData ? dotData.element : null;
@@ -419,10 +469,20 @@ export default class ConnectionController {
     
     if (!fromCard || !toCard) return;
     
-    const fromDot = this._findDotByData(fromCard, connection.fromSide);
-    const toDot = this._findDotByData(toCard, connection.toSide);
+    // Use stored position data when finding dots
+    const fromDot = this._findDotByData(fromCard, connection.fromSide, connection.fromPosition);
+    const toDot = this._findDotByData(toCard, connection.toSide, connection.toPosition);
     
-    if (!fromDot || !toDot) return;
+    if (!fromDot || !toDot) {
+      logger.warn('Connections', 'Could not find dots for connection update', {
+        id: connectionId,
+        fromSide: connection.fromSide,
+        fromPosition: connection.fromPosition,
+        toSide: connection.toSide,
+        toPosition: connection.toPosition
+      });
+      return;
+    }
     
     const fromCenter = calculateElementCenterCoordinates(fromDot);
     const toCenter = calculateElementCenterCoordinates(toDot);
@@ -445,8 +505,8 @@ export default class ConnectionController {
     const toCard = document.querySelector(`.card[data-scenario="${connection.toCardId}"]`);
     
     if (fromCard && toCard) {
-      const fromDot = this._findDotByData(fromCard, connection.fromSide);
-      const toDot = this._findDotByData(toCard, connection.toSide);
+      const fromDot = this._findDotByData(fromCard, connection.fromSide, connection.fromPosition);
+      const toDot = this._findDotByData(toCard, connection.toSide, connection.toPosition);
       
       if (fromDot) {
         fromDot.dataset.occupied = 'false';
@@ -483,12 +543,13 @@ export default class ConnectionController {
   }
 
   createConnectionFromData(connectionData) {
+    // Update to use position data from saved layout
     this._completeAndRenderConnection(
       connectionData.fromId,
       connectionData.fromSide,
       connectionData.toId,
       connectionData.toSide,
-      0.5
+      connectionData.toPosition || 0.5
     );
   }
 }
